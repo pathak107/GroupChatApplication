@@ -17,6 +17,10 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('UserIsTyping', { sender:data.sender});
   });
 
+  socket.on('join', function (user) {
+    io.emit('UserJoined', user);
+  });
+
   socket.on('disconnect', function () {
     console.log("disconnected")
     socket.broadcast.emit('user disconnected');

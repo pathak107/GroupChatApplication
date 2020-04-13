@@ -46,6 +46,7 @@
             
             $("#ChatArea").show();
             $('#Register').hide();
+            socket.emit('join',UserName);
         })
 
         $("#messageForm").submit(function (e) {
@@ -61,6 +62,10 @@
             $('#status').text("Type a message");
         });
 
+        socket.on('UserJoined',(user)=>{
+            $('#Users').append(" "+ user + ", ");
+        })
+
         //Typing Status
         $("[name='message']").keydown(() => {
             socket.emit('Typing', { sender: UserName });
@@ -72,9 +77,10 @@
 
         //Someone leaving the chat
         socket.on('user disconnected', function () {
-            $('#status').text("A user left the chat room");
+            $('#status').text(user +" left the chat room");
         });
 
+        
     </script>
 </body>
 
