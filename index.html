@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <form id="Register" autocomplete="off">
+        <label for="">User Name</label>
+        <input type="text" name="username" id="">
+        <button type="submit">Enter Chat room</button>
+    </form>
+
+    <div id="ChatArea">
+        <p id="status">Type a message</p>
+        <p id="Users">Users in the room : </p>
+        <br>
+        
+        <ul>
+        </ul>
+
+        <form id="messageForm" autocomplete="off">
+            <input type="text" name="message" id="">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var UserName;
+        var socket = io();
+
+        $(document).ready(() => {
+            $("#ChatArea").hide();
+        })
+        $("#Register").submit((e) => {
+            e.preventDefault();
+            UserName = $("[name='username']").val();
+            
+            $("#ChatArea").show();
+            $('#Register').hide();
+        })
+
+        $("#messageForm").submit(function (e) {
+            e.preventDefault();
+            var message = $("[name='message']").val();
+            $("[name='message']").val("")
+            socket.emit('messageSent', { message: message, sender: UserName });
+        });
+
+        socket.on('newMessage', function (data) {
+            console.log(data);
+            $('ul').append("<li><span>" + data.sender + " :  </span>" + data.message + "</li>");
+            $('#status').text("Type a message");
+        });
+
+        //Typing Status
+        $("[name='message']").keydown(() => {
+            socket.emit('Typing', { sender: UserName });
+        });
+        socket.on('UserIsTyping', function (data) {
+            console.log(data);
+            $('#status').text(data.sender + " is typing...");
+        });
+
+        //Someone leaving the chat
+        socket.on('user disconnected', function () {
+            $('#status').text("A user left the chat room");
+        });
+
+    </script>
+</body>
+
+</html>
