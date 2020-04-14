@@ -17,16 +17,14 @@
     </form>
 
     <div id="ChatArea">
+        <p id="Users"></p>
         <p id="status">Type a message</p>
-        <p id="Users">Users in the room : </p>
-        <br>
-        
         <ul>
         </ul>
 
         <form id="messageForm" autocomplete="off">
-            <input type="text" name="message" id="">
-            <button type="submit">Send</button>
+            <textarea name="message" id="" cols="30" rows="3" placeholder="Type a message"></textarea>
+            <button type="submit">Send Message</button>
         </form>
     </div>
 
@@ -58,12 +56,19 @@
 
         socket.on('newMessage', function (data) {
             console.log(data);
-            $('ul').append("<li><span>" + data.sender + " :  </span>" + data.message + "</li>");
+            $('ul').append("<li><span style='color:blue;'>" + data.sender + " :  </span>" + data.message + "</li>");
             $('#status').text("Type a message");
         });
 
         socket.on('UserJoined',(user)=>{
-            $('#Users').append(" "+ user + ", ");
+            console.log(user);
+            console.log(user.length);
+            var UserNames=[];
+            for(var i=1;i< user.length;i++){
+                UserNames.push(user[i].name);
+            }
+            $('#Users').text("Active Users in the room : "+ UserNames);
+            
         })
 
         //Typing Status
@@ -71,13 +76,16 @@
             socket.emit('Typing', { sender: UserName });
         });
         socket.on('UserIsTyping', function (data) {
-            console.log(data);
             $('#status').text(data.sender + " is typing...");
         });
 
         //Someone leaving the chat
-        socket.on('user disconnected', function () {
-            $('#status').text(user +" left the chat room");
+        socket.on('user disconnected', function (user) {
+            var UserNames=[];
+            for(var i=1;i< user.length;i++){
+                UserNames.push(user[i].name);
+            }
+            $('#Users').text("Active Users in the room : "+ UserNames);
         });
 
         

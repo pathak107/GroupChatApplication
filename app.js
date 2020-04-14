@@ -8,6 +8,21 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+//users in chat room 
+var Users=[{
+  id:String,
+  name: String,
+}];
+
+function deleteUser(id){
+  var i
+  for(i=0;i<Users.length;i++)
+  {
+    if(Users[i].id===id) break;
+  }
+  Users.splice(i,1);
+};
+
 io.on('connection', function (socket) {
     console.log("Socket Connected");
   socket.on('messageSent', function (data) {
@@ -18,12 +33,14 @@ io.on('connection', function (socket) {
   });
 
   socket.on('join', function (user) {
-    io.emit('UserJoined', user);
+    Users.push({id:socket.id,name:user});
+    io.emit('UserJoined',Users);
   });
 
   socket.on('disconnect', function () {
     console.log("disconnected")
-    socket.broadcast.emit('user disconnected');
+    deleteUser(socket.id);
+    socket.broadcast.emit('user disconnected',Users);
   });
 });
 
